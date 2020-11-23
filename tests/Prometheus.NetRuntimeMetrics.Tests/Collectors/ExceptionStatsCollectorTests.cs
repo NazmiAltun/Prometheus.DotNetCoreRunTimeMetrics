@@ -9,6 +9,7 @@ using Xunit;
 
 namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
 {
+    [Collection("NoParallelization")]
     public class ExceptionStatsCollectorTests
     {
         [Fact]
