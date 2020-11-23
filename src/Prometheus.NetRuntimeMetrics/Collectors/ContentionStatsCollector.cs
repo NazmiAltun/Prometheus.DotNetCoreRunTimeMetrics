@@ -70,7 +70,7 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
                 ContentionTotal.Inc();
             }
 
-            if (eventTime.HasDuration)
+            if (eventTime.FinalWithDuration)
             {
                 ContentionSecondsTotal.Inc(
                     eventTime.Duration.TotalSeconds * _sampler.SampleEvery);

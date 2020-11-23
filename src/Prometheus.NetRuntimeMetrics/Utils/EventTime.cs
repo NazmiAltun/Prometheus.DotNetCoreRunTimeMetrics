@@ -24,7 +24,7 @@ namespace Prometheus.NetRuntimeMetrics.Utils
 
         public TimeSpan Duration { get; }
 
-        public bool HasDuration => Duration != default;
+        public bool FinalWithDuration => Duration != default;
 
         public static bool operator ==(EventTime et1, EventTime et2)
         {
