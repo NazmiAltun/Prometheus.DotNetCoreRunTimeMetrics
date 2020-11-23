@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Prometheus.NetRuntimeMetrics.Tests.Helper
+namespace Prometheus.NetRuntimeMetrics.Tests.TestHelpers
 {
     internal static class DelayHelper
     {

@@ -1,13 +1,13 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Threading.Tasks;
+using FluentAssertions;
 using Prometheus.Client;
 using Prometheus.Client.Collectors;
 using Prometheus.NetRuntimeMetrics.Collectors;
-using Prometheus.NetRuntimeMetrics.Tests.Helper;
-using System;
-using System.Threading.Tasks;
+using Prometheus.NetRuntimeMetrics.Tests.TestHelpers;
 using Xunit;
 
-namespace Prometheus.NetRuntimeMetrics.Tests
+namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
 {
     public class ExceptionStatsCollectorTests
     {
