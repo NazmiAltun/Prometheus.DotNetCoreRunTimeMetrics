@@ -1,0 +1,29 @@
+name: CI
+on:
+  push:
+    branches:
+      - '**'
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          git fetch --prune --unshallow
+      - name: Disable DotNet First Usage Messsage
+        run: touch "$HOME/.dotnet/$(dotnet --version).dotnetFirstUseSentinel"
+      - name: Install sonar-scanner
+        run: dotnet tool install --global dotnet-sonarscanner
+      - name: Begin sonar scanning
+        run: dotnet-sonarscanner begin /k:NazmiAltun_prometheus-netruntime-metrics /n:prometheus-netruntime-metrics /o:nazmialtun-github 
+          /d:sonar.host.url=https://sonarcloud.io /version:${{ github.run_number }} /d:sonar.login=${{secrets.SONAR_TOKEN}}
+          /d:sonar.cs.opencover.reportsPaths=coverage/*.xml
+      - name: Run Tests
+        run: dotnet test -p:CollectCoverage=true -p:CoverletOutputFormat=opencover -p:CoverletOutput=../../coverage/integration.xml
+      - name: End sonar scanning
+        run: dotnet-sonarscanner end /d:sonar.login=${{secrets.SONAR_TOKEN}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
