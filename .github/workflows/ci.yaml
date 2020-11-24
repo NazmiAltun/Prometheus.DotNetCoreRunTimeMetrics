@@ -16,14 +16,16 @@ jobs:
       - name: Disable DotNet First Usage Messsage
         run: touch "$HOME/.dotnet/$(dotnet --version).dotnetFirstUseSentinel"
       - name: Install sonar-scanner
-        run: dotnet tool install --global dotnet-sonarscanner
+        run: dotnet tool install --global dotnet-sonarscanner --version 4.8.0
       - name: Begin sonar scanning
-        run: dotnet-sonarscanner begin /k:NazmiAltun_prometheus-netruntime-metrics /n:prometheus-netruntime-metrics /o:nazmialtun-github 
-          /d:sonar.host.url=https://sonarcloud.io /version:${{ github.run_number }} /d:sonar.login=${{secrets.SONAR_TOKEN}}
+        run: dotnet sonarscanner begin \
+          /o:nazmialtun-github \
+          /k:NazmiAltun_prometheus-netruntime-metrics \
+          /d:sonar.host.url=https://sonarcloud.io \
           /d:sonar.cs.opencover.reportsPaths=coverage/*.xml
       - name: Run Tests
         run: dotnet test -p:CollectCoverage=true -p:CoverletOutputFormat=opencover -p:CoverletOutput=../../coverage/integration.xml
       - name: End sonar scanning
-        run: dotnet-sonarscanner end /d:sonar.login=${{secrets.SONAR_TOKEN}}
+        run: dotnet sonarscanner end
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

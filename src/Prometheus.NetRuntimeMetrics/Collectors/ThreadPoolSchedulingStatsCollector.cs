@@ -53,6 +53,7 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
         public override void ProcessEvent(EventWrittenEventArgs e)
         {
             var eventTime = _eventTimer.GetEventTime(e);
+
             if (eventTime == EventTime.Start)
             {
                 ScheduledCount.Inc();

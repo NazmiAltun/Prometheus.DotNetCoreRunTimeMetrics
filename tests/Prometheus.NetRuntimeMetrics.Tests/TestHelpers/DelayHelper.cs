@@ -1,18 +1,18 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Prometheus.NetRuntimeMetrics.Tests.TestHelpers
 {
     internal static class DelayHelper
     {
         private const int DelayMs = 10;
-        private const int TryCount = 5000;
+        private const int TryCount = 500;
 
-        public static async Task DelayAsync(Func<bool> conditionFunc)
+        public static void Delay(Func<bool> conditionFunc)
         {
             for (var i = 0; i < TryCount && conditionFunc(); i++)
             {
-                await Task.Delay(DelayMs);
+                Thread.Sleep(DelayMs);
             }
         }
     }

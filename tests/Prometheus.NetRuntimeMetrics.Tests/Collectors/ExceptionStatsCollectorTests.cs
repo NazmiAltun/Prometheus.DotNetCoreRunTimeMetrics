@@ -26,13 +26,13 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
             {
             }
 
-            await ExceptionShouldBeCollected<DivideByZeroException>(collector);
+            ExceptionShouldBeCollected<DivideByZeroException>(collector);
         }
 
-        private async Task ExceptionShouldBeCollected<TException>(ExceptionStatsCollector collector)
+        private void ExceptionShouldBeCollected<TException>(ExceptionStatsCollector collector)
             where TException : Exception
         {
-            await DelayHelper.DelayAsync(() => collector.ExceptionCount
+            DelayHelper.Delay(() => collector.ExceptionCount
                 .WithLabels(typeof(TException).FullName).Value < 1);
             collector.ExceptionCount
                 .WithLabels(typeof(TException).FullName).Value

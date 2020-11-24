@@ -1,10 +1,11 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Threading;
+using FluentAssertions;
 using Microsoft.Extensions.Caching.Memory;
 using Prometheus.Client;
 using Prometheus.Client.Collectors;
 using Prometheus.NetRuntimeMetrics.Collectors;
 using Prometheus.NetRuntimeMetrics.Tests.TestHelpers;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -15,19 +16,25 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
         [Fact]
         public async Task When_TasksScheduledOnThreadPool_Then_ThreadPoolStatsShouldBeCollected()
         {
-            const int taskCount = 20;
+            const int taskCount = 50;
             using var collector = CreateStatsCollector();
-            await Task.WhenAll(Enumerable.Range(0, taskCount).Select(x => Task.Run(() => x)));
-            await ScheduledTasksShouldBeCounted(collector, taskCount);
+            for (var i = 0; i < taskCount; i++)
+            {
+                await Task.Run(() => { });
+            }
+
+            ScheduledTasksShouldBeCounted(collector, taskCount);
         }
 
-        private async Task ScheduledTasksShouldBeCounted(ThreadPoolSchedulingStatsCollector collector, int taskCount)
+        private void ScheduledTasksShouldBeCounted(ThreadPoolSchedulingStatsCollector collector, int taskCount)
         {
-            await DelayHelper.DelayAsync(() => collector.ScheduledCount.Value < taskCount);
-            collector.ScheduledCount.Value.Should().BeGreaterOrEqualTo(taskCount);
-            collector.ScheduleDelay.Value.Count.Should().BeGreaterOrEqualTo(taskCount);
+            // The reason we check  taskCount-1 here is that .net core does not emit Enqueue  
+            // event for the first scheduled task ,but it only emits Dequeue event. Hence, it is not tracked.
+            // IMHO , this is a minor bug in .net framework
+            DelayHelper.Delay(() => collector.ScheduledCount.Value < taskCount -1 );
+            collector.ScheduledCount.Value.Should().BeGreaterOrEqualTo(taskCount - 1);
+            collector.ScheduleDelay.Value.Count.Should().BeGreaterOrEqualTo(taskCount - 1);
             collector.ScheduleDelay.Value.Sum.Should().BeGreaterThan(0);
-
         }
 
         private ThreadPoolSchedulingStatsCollector CreateStatsCollector()

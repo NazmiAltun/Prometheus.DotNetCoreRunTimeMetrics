@@ -45,24 +45,22 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
             using var collector = CreateStatsCollector();
             var tasks = Enumerable.Range(0, taskCount).Select(x => Task.Run(Lock)).ToArray();
             Task.WaitAll(tasks);
-            await ContentionCountShouldBeCollected(collector, taskCount);
-            await ContentionSecondsShouldBeCollected(collector, expectedContentionSec);
+            ContentionCountShouldBeCollected(collector, taskCount);
+            ContentionSecondsShouldBeCollected(collector, expectedContentionSec);
         }
 
 
-        private async Task ContentionCountShouldBeCollected(
+        private void ContentionCountShouldBeCollected(
             ContentionStatsCollector collector, int taskCount)
         {
-            await DelayHelper.DelayAsync(() => collector.ContentionTotal.Value < taskCount - 1);
+            DelayHelper.Delay(() => collector.ContentionTotal.Value < taskCount - 1);
             collector.ContentionTotal.Value.Should().BeGreaterOrEqualTo(taskCount - 1);
         }
 
-        private async Task ContentionSecondsShouldBeCollected(
+        private void ContentionSecondsShouldBeCollected(
             ContentionStatsCollector collector, double expectedContentionSec)
         {
-            await DelayHelper.DelayAsync(() =>
-                collector.ContentionSecondsTotal.Value < expectedContentionSec);
-
+            DelayHelper.Delay(() => collector.ContentionSecondsTotal.Value < expectedContentionSec);
             collector.ContentionSecondsTotal.Value.Should().BeGreaterOrEqualTo(expectedContentionSec);
         }
 
