@@ -9,7 +9,7 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
 {
     internal class ContentionStatsCollector : StatsCollectorBase
     {
-        private const int DefaultSamplingRate = 2;
+        private const int DefaultSamplingRate = 1;
         private const int EventIdContentionStart = 81;
         private const int EventIdContentionStop = 91;
 

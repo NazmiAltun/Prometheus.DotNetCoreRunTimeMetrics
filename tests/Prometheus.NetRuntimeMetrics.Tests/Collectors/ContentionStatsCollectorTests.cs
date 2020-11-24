@@ -28,7 +28,7 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
         [Fact]
         public async Task When_There_Is_Lock_Contention_Then_Contention_Should_BeRecorded()
         {
-            const int taskCount = 3;
+            const int taskCount = 10;
             const int sleepMs = 50;
             const double expectedContentionSec = (double)sleepMs * taskCount / 1000;
 
@@ -63,8 +63,7 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
             await DelayHelper.DelayAsync(() =>
                 collector.ContentionSecondsTotal.Value < expectedContentionSec);
 
-            collector.ContentionSecondsTotal.Value.Should()
-                .BeInRange(expectedContentionSec, expectedContentionSec + 0.1);
+            collector.ContentionSecondsTotal.Value.Should().BeGreaterOrEqualTo(expectedContentionSec);
         }
 
         private ContentionStatsCollector CreateStatsCollector()

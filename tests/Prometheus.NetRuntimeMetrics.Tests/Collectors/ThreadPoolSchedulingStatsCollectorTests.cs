@@ -1,32 +1,22 @@
-﻿using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.Extensions.Caching.Memory;
 using Prometheus.Client;
 using Prometheus.Client.Collectors;
 using Prometheus.NetRuntimeMetrics.Collectors;
 using Prometheus.NetRuntimeMetrics.Tests.TestHelpers;
+using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
 {
     public class ThreadPoolSchedulingStatsCollectorTests
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
-        public ThreadPoolSchedulingStatsCollectorTests(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
-
         [Fact]
         public async Task When_TasksScheduledOnThreadPool_Then_ThreadPoolStatsShouldBeCollected()
         {
             const int taskCount = 20;
             using var collector = CreateStatsCollector();
-            //TODO: Not sure about this test. Might be flaky?
             await Task.WhenAll(Enumerable.Range(0, taskCount).Select(x => Task.Run(() => x)));
             await ScheduledTasksShouldBeCounted(collector, taskCount);
         }
