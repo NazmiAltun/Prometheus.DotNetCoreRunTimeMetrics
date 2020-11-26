@@ -64,7 +64,7 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
             }
 
             collector.ContentionTotal.Value.Should().Be(threadCount - 1);
-            collector.ContentionSecondsTotal.Value.Should().BeGreaterOrEqualTo(expectedContentionSec);
+            collector.ContentionSecondsTotal.Value.Should().BeInRange(expectedContentionSec - 0.25, expectedContentionSec + 0.25);
         }
 
         private ContentionStatsCollector CreateStatsCollector()
