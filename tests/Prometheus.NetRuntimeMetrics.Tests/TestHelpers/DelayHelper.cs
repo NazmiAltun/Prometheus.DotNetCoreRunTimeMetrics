@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Prometheus.NetRuntimeMetrics.Tests.TestHelpers
 {
@@ -13,6 +14,14 @@ namespace Prometheus.NetRuntimeMetrics.Tests.TestHelpers
             for (var i = 0; i < TryCount && conditionFunc(); i++)
             {
                 Thread.Sleep(DelayMs);
+            }
+        }
+
+        public static async Task DelayAsync(Func<bool> conditionFunc)
+        {
+            for (var i = 0; i < TryCount && conditionFunc(); i++)
+            {
+                await Task.Delay(DelayMs);
             }
         }
     }

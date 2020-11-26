@@ -54,7 +54,8 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
             if (e.EventId == EventIdContentionStop && _sampler.ShouldSample())
             {
                 ContentionTotal.Inc();
-                ContentionSecondsTotal.Inc((double)e.Payload[2] / 1000000000 * _sampler.SampleEvery);
+                ContentionSecondsTotal.Inc((double)e.Payload[2] / 1000000000 * _sampler.SampleEvery
+                - ContentionSecondsTotal.Value);
             }
         }
     }

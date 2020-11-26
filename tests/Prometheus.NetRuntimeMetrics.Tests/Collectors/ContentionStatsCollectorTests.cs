@@ -1,10 +1,8 @@
 ﻿using FluentAssertions;
-using Microsoft.Extensions.Caching.Memory;
 using Prometheus.Client;
 using Prometheus.Client.Collectors;
 using Prometheus.NetRuntimeMetrics.Collectors;
-using Prometheus.NetRuntimeMetrics.Tests.TestHelpers;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -15,22 +13,9 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
     public class ContentionStatsCollectorTests
     {
         [Fact]
-        public void When_NothingIsLocked_Then_NoContention_Should_BeRecorded()
+        public async Task When_NothingIsLocked_Then_NoContention_Should_BeRecorded()
         {
-            var lockObj = new object();
             using var collector = CreateStatsCollector();
-            lock (lockObj) { }
-
-            collector.ContentionTotal.Value.Should().Be(0);
-            collector.ContentionSecondsTotal.Value.Should().Be(0);
-        }
-
-        [Fact]
-        public async Task When_There_Is_Lock_Contention_Then_Contention_Should_BeRecorded()
-        {
-            const int taskCount = 10;
-            const int sleepMs = 50;
-            const double expectedContentionSec = (double)sleepMs * taskCount / 1000;
 
             var lockObj = new object();
 
@@ -38,29 +23,48 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
             {
                 lock (lockObj)
                 {
-                    Thread.Sleep(sleepMs);
                 }
             }
 
+            await Task.Run(Lock);
+            collector.ContentionTotal.Value.Should().Be(0);
+            collector.ContentionSecondsTotal.Value.Should().Be(0);
+        }
+
+        [Fact]
+        public void When_There_Is_Lock_Contention_Then_Contention_Should_BeRecorded()
+        {
+            const int threadCount = 50;
+            const int sleepMs = 10;
+            const double expectedContentionSec = (double)sleepMs * threadCount / 1000;
+            var lockObj = new object();
+
             using var collector = CreateStatsCollector();
-            var tasks = Enumerable.Range(0, taskCount).Select(x => Task.Run(Lock)).ToArray();
-            await Task.WhenAll(tasks);
-            ContentionCountShouldBeCollected(collector, taskCount);
-            ContentionSecondsShouldBeCollected(collector, expectedContentionSec);
-        }
+            void Lock(int sleepTimeout)
+            {
+                lock (lockObj)
+                {
+                    Thread.Sleep(sleepTimeout);
+                }
+            }
 
+            var threads = new List<Thread>();
+            for (var i = 0; i < threadCount; i++)
+            {
+                var thread = new Thread(() =>
+                {
+                    Lock(sleepMs);
+                });
+                thread.Start();
+                threads.Add(thread);
+            }
 
-        private void ContentionCountShouldBeCollected(
-            ContentionStatsCollector collector, int taskCount)
-        {
-            DelayHelper.Delay(() => collector.ContentionTotal.Value < taskCount - 1);
-            collector.ContentionTotal.Value.Should().BeGreaterOrEqualTo(taskCount - 1);
-        }
+            foreach (var thread in threads)
+            {
+                thread.Join();
+            }
 
-        private void ContentionSecondsShouldBeCollected(
-            ContentionStatsCollector collector, double expectedContentionSec)
-        {
-            DelayHelper.Delay(() => collector.ContentionSecondsTotal.Value < expectedContentionSec);
+            collector.ContentionTotal.Value.Should().Be(threadCount - 1);
             collector.ContentionSecondsTotal.Value.Should().BeGreaterOrEqualTo(expectedContentionSec);
         }
 
