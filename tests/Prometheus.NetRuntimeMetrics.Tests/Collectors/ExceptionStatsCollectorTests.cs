@@ -1,15 +1,14 @@
-﻿using System;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Prometheus.Client;
 using Prometheus.Client.Collectors;
 using Prometheus.NetRuntimeMetrics.Collectors;
 using Prometheus.NetRuntimeMetrics.Tests.TestHelpers;
+using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
 {
-    [Collection("NoParallelization")]
     public class ExceptionStatsCollectorTests
     {
         [Fact]
