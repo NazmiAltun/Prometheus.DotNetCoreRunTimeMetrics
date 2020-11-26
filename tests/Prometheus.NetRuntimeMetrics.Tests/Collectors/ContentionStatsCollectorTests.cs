@@ -66,11 +66,7 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
 
         private ContentionStatsCollector CreateStatsCollector()
         {
-            return new ContentionStatsCollector(
-                new MetricFactory(new CollectorRegistry()),
-                new MemoryCache(new MemoryCacheOptions()),
-                _ => { },
-                1);
+            return new ContentionStatsCollector(new MetricFactory(new CollectorRegistry()));
         }
     }
 }

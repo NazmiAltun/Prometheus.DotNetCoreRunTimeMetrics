@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Prometheus.Client.Abstractions;
+﻿using Prometheus.Client.Abstractions;
 using Prometheus.NetRuntimeMetrics.Abstraction;
 using Prometheus.NetRuntimeMetrics.Utils;
 using System;
@@ -13,37 +12,26 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
         private const int EventIdContentionStart = 81;
         private const int EventIdContentionStop = 91;
 
-        private readonly EventTimer _eventTimer;
         private readonly Sampler _sampler;
 
-        public ContentionStatsCollector(
-            IMetricFactory metricFactory,
-            IMemoryCache memoryCache)
-            : this(metricFactory, memoryCache, _ => { })
+        public ContentionStatsCollector(IMetricFactory metricFactory)
+            : this(metricFactory, _ => { })
         {
         }
 
         public ContentionStatsCollector(
             IMetricFactory metricFactory,
-            IMemoryCache memoryCache,
             Action<Exception> errorHandler)
-            : this(metricFactory, memoryCache, errorHandler, DefaultSamplingRate)
+            : this(metricFactory, errorHandler, DefaultSamplingRate)
         {
         }
 
         public ContentionStatsCollector(
             IMetricFactory metricFactory,
-            IMemoryCache memoryCache,
             Action<Exception> errorHandler,
             int sampleEvery) : base(errorHandler)
         {
             _sampler = new Sampler(sampleEvery);
-            _eventTimer = new EventTimer(
-                memoryCache,
-                EventIdContentionStart,
-                EventIdContentionStop,
-                _ => _.OSThreadId,
-                _sampler);
 
             ContentionSecondsTotal = metricFactory
                 .CreateCounter(
@@ -60,20 +48,13 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
         public override Guid EventSourceGuid => Constants.RuntimeEventSourceId;
         public override EventKeywords Keywords => (EventKeywords)RunTimeEventKeywords.Contention;
         public override EventLevel Level => EventLevel.Informational;
-        
+
         public override void ProcessEvent(EventWrittenEventArgs e)
         {
-            var eventTime = _eventTimer.GetEventTime(e);
-
-            if (eventTime == EventTime.Start)
+            if (e.EventId == EventIdContentionStop && _sampler.ShouldSample())
             {
                 ContentionTotal.Inc();
-            }
-
-            if (eventTime.FinalWithDuration)
-            {
-                ContentionSecondsTotal.Inc(
-                    eventTime.Duration.TotalSeconds * _sampler.SampleEvery);
+                ContentionSecondsTotal.Inc((double)e.Payload[2] / 1000000000 * _sampler.SampleEvery);
             }
         }
     }
