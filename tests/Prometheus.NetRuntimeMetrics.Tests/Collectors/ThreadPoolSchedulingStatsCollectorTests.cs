@@ -26,9 +26,6 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
 
         private void ScheduledTasksShouldBeCounted(ThreadPoolSchedulingStatsCollector collector, int taskCount)
         {
-            // The reason we check  taskCount-1 here is that .net core does not emit Enqueue  
-            // event for the first scheduled task ,but it only emits Dequeue event. Hence, it is not tracked.
-            // IMHO , this is a minor bug in .net framework
             DelayHelper.Delay(() => collector.ScheduledCount.Value < taskCount -1 );
             collector.ScheduledCount.Value.Should().BeGreaterOrEqualTo(taskCount - 1);
             collector.ScheduleDelay.Value.Count.Should().BeGreaterOrEqualTo(taskCount - 1);

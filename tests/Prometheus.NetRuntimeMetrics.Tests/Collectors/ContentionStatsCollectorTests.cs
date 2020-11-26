@@ -44,7 +44,7 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
 
             using var collector = CreateStatsCollector();
             var tasks = Enumerable.Range(0, taskCount).Select(x => Task.Run(Lock)).ToArray();
-            Task.WaitAll(tasks);
+            await Task.WhenAll(tasks);
             ContentionCountShouldBeCollected(collector, taskCount);
             ContentionSecondsShouldBeCollected(collector, expectedContentionSec);
         }
