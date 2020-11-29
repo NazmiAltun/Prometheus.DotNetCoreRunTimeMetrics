@@ -1,12 +1,12 @@
-﻿using Prometheus.Client.Abstractions;
+﻿using System;
+using System.Diagnostics.Tracing;
+using Prometheus.Client.Abstractions;
 using Prometheus.NetRuntimeMetrics.Abstraction;
 using Prometheus.NetRuntimeMetrics.Utils;
-using System;
-using System.Diagnostics.Tracing;
 
 namespace Prometheus.NetRuntimeMetrics.Collectors
 {
-    internal class ContentionStatsCollector : StatsCollectorBase
+    internal class ContentionStatsCollector : RuntimeStatsCollectorBase
     {
         private const int DefaultSamplingRate = 1;
         private const int EventIdContentionStart = 81;
@@ -34,7 +34,7 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
             _sampler = new Sampler(sampleEvery);
 
             ContentionSecondsTotal = metricFactory
-                .CreateCounter(
+                .CreateGauge(
                     "dotnet_contention_seconds_total",
                     "The total amount of time spent contending locks");
 
@@ -43,19 +43,17 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
                     "dotnet_contention_total",
                     "The number of locks contended");
         }
-        public ICounter ContentionSecondsTotal { get; }
+        public IGauge ContentionSecondsTotal { get; }
         public ICounter ContentionTotal { get; }
-        public override Guid EventSourceGuid => Constants.RuntimeEventSourceId;
-        public override EventKeywords Keywords => (EventKeywords)RunTimeEventKeywords.Contention;
-        public override EventLevel Level => EventLevel.Informational;
+        protected override EventKeywords Keywords => (EventKeywords)0x4000;
+        protected override EventLevel Level => EventLevel.Informational;
 
-        public override void ProcessEvent(EventWrittenEventArgs e)
+        protected override void ProcessEvent(EventWrittenEventArgs e)
         {
             if (e.EventId == EventIdContentionStop && _sampler.ShouldSample())
             {
                 ContentionTotal.Inc();
-                ContentionSecondsTotal.Inc((double)e.Payload[2] / 1000000000 * _sampler.SampleEvery
-                - ContentionSecondsTotal.Value);
+                ContentionSecondsTotal.Set((double) e.Payload[2] / 1000000000 * _sampler.SampleEvery);
             }
         }
     }

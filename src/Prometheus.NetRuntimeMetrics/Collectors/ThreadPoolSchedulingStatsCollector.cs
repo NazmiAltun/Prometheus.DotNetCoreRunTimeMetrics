@@ -7,14 +7,14 @@ using System.Diagnostics.Tracing;
 
 namespace Prometheus.NetRuntimeMetrics.Collectors
 {
-    internal class ThreadPoolSchedulingStatsCollector : StatsCollectorBase
+    internal class ThreadPoolSchedulingStatsCollector : FrameworkStatsCollectorBase
     {
         private const int DefaultSamplingRate = 1;
         private const int EventIdThreadPoolEnqueueWork = 30;
         private const int EventIdThreadPoolDequeueWork = 31;
 
         private readonly EventTimer _eventTimer;
-        private readonly Sampler _sampler;
+        private readonly Sampler _sampler; //TODO: May move this to base class
 
         public ThreadPoolSchedulingStatsCollector(
             IMetricFactory metricFactory,
@@ -36,7 +36,7 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
                 EventIdThreadPoolEnqueueWork,
                 EventIdThreadPoolDequeueWork,
                 x => (long)x.Payload[0],
-                _sampler);
+                "tpoolsched");
             ScheduledCount = metricFactory.CreateCounter("dotnet_threadpool_scheduled_total", "The total number of items the thread pool has been instructed to execute");
             ScheduleDelay = metricFactory.CreateHistogram(
                 "dotnet_threadpool_scheduling_delay_seconds",
@@ -46,11 +46,10 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
 
         public ICounter ScheduledCount { get; }
         public IHistogram ScheduleDelay { get; }
-        public override Guid EventSourceGuid => Constants.FrameworkEventSourceId;
-        public override EventKeywords Keywords => (EventKeywords)FrameworkEventKeywords.ThreadPool;
-        public override EventLevel Level => EventLevel.Verbose;
+        protected override EventKeywords Keywords => (EventKeywords)0x0002;
+        protected override EventLevel Level => EventLevel.Verbose;
 
-        public override void ProcessEvent(EventWrittenEventArgs e)
+        protected override void ProcessEvent(EventWrittenEventArgs e)
         {
             var eventTime = _eventTimer.GetEventTime(e);
 
@@ -61,7 +60,7 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
 
             if (eventTime.FinalWithDuration)
             {
-                ScheduleDelay.Observe(eventTime.Duration.TotalSeconds, _sampler.SampleEvery);
+                ScheduleDelay.Observe(eventTime.Duration.TotalSeconds);
             }
         }
     }

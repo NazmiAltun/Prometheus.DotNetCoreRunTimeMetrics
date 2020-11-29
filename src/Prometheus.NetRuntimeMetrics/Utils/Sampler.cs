@@ -13,7 +13,7 @@ namespace Prometheus.NetRuntimeMetrics.Utils
             SampleEvery = sampleEvery;
             if (sampleEvery <= 0)
             {
-                throw new ArgumentOutOfRangeException($"{nameof(sampleEvery)} must a positive number");
+                throw new ArgumentOutOfRangeException($"{nameof(sampleEvery)} must be a positive number");
             }
         }
 

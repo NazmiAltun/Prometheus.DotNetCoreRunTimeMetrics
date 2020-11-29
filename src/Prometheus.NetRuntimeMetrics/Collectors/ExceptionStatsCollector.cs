@@ -1,11 +1,11 @@
-﻿using Prometheus.Client.Abstractions;
-using Prometheus.NetRuntimeMetrics.Abstraction;
-using System;
+﻿using System;
 using System.Diagnostics.Tracing;
+using Prometheus.Client.Abstractions;
+using Prometheus.NetRuntimeMetrics.Abstraction;
 
 namespace Prometheus.NetRuntimeMetrics.Collectors
 {
-    internal class ExceptionStatsCollector : StatsCollectorBase
+    internal class ExceptionStatsCollector : RuntimeStatsCollectorBase
     {
         private const int EventIdExceptionThrown = 80;
 
@@ -27,14 +27,10 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
         }
 
         public IMetricFamily<ICounter> ExceptionCount { get; }
+        protected override EventKeywords Keywords => (EventKeywords)0x00008000;
+        protected override EventLevel Level => EventLevel.Informational;
 
-        public override Guid EventSourceGuid => Constants.RuntimeEventSourceId;
-
-        public override EventKeywords Keywords => (EventKeywords)RunTimeEventKeywords.Exception;
-
-        public override EventLevel Level => EventLevel.Informational;
-
-        public override void ProcessEvent(EventWrittenEventArgs e)
+        protected override void ProcessEvent(EventWrittenEventArgs e)
         {
             if (e.EventId == EventIdExceptionThrown)
             {

@@ -73,21 +73,24 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Utils
                 new MemoryCache(Options.Create(new MemoryCacheOptions())),
                 startEventId,
                 endEventId,
-                x => (long)x.Payload[0],
-                Sampler.Default);
+                x => (long)x.Payload[0]);
         }
 
         private EventWrittenEventArgs CreateEventWrittenEventArgs(
             long eventId, DateTime timeStamp)
         {
-            var eventArgs = (EventWrittenEventArgs)typeof(EventWrittenEventArgs).CreateInstance(new[] { typeof(EventSource) }, Flags.NonPublic | Flags.Instance, new object[] { null });
+            var eventArgs = (EventWrittenEventArgs)typeof(EventWrittenEventArgs).CreateInstance(
+                new[]
+                {
+                    typeof(EventSource)
+                }, Flags.NonPublic | Flags.Instance | Flags.ExcludeBackingMembers, new object[] { null });
             var payload = new ReadOnlyCollection<object>(new List<object>()
             {
                 eventId
             });
             eventArgs.SetPropertyValue("Payload", payload);
             eventArgs.SetPropertyValue("TimeStamp", timeStamp);
-
+            
             return eventArgs;
         }
     }

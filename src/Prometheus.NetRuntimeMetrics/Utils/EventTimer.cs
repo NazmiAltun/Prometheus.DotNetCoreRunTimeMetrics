@@ -11,34 +11,39 @@ namespace Prometheus.NetRuntimeMetrics.Utils
         private readonly IMemoryCache _memoryCache;
         private readonly int _startEventId;
         private readonly int _endEventId;
-        private readonly Func<EventWrittenEventArgs, long> _extractEventIdFunc;
-        private readonly Sampler _sampler;
+        private readonly Func<EventWrittenEventArgs, long> _extractDataIdFunc;
+        private readonly string _prefix;
 
         public EventTimer(
             IMemoryCache memoryCache,
             int startEventId,
             int endEventId,
-            Func<EventWrittenEventArgs, long> extractEventIdFunc,
-            Sampler sampler)
+            Func<EventWrittenEventArgs, long> extractDataIdFunc)
+        : this(memoryCache, startEventId, endEventId, extractDataIdFunc, string.Empty)
+        {
+        }
+
+        public EventTimer(
+            IMemoryCache memoryCache,
+            int startEventId,
+            int endEventId,
+            Func<EventWrittenEventArgs, long> extractDataIdFunc,
+            string prefix)
         {
             _startEventId = startEventId;
             _endEventId = endEventId;
             _memoryCache = memoryCache;
-            _extractEventIdFunc = extractEventIdFunc;
-            _sampler = sampler;
+            _extractDataIdFunc = extractDataIdFunc;
+            _prefix = prefix;
         }
 
         public EventTime GetEventTime(EventWrittenEventArgs e)
         {
-            var key = $"{_extractEventIdFunc(e)}";
+            var key = $"{_prefix}_{_extractDataIdFunc(e)}";
 
             if (e.EventId == _startEventId)
             {
-                if (_sampler.ShouldSample())
-                {
-                    _memoryCache.Set(key, e.TimeStamp, DefaultCacheDuration);
-                }
-
+                _memoryCache.Set(key, e.TimeStamp, DefaultCacheDuration);
                 return EventTime.Start;
             }
 

@@ -3,7 +3,7 @@ using System.Diagnostics.Tracing;
 
 namespace Prometheus.NetRuntimeMetrics.Abstraction
 {
-    internal abstract class StatsCollectorBase : EventListener, IEventSourceCollector
+    internal abstract class StatsCollectorBase : EventListener
     {
         private readonly Action<Exception> _errorHandler;
 
@@ -13,15 +13,15 @@ namespace Prometheus.NetRuntimeMetrics.Abstraction
             EventSourceCreated += OnEventSourceCreated;
         }
 
-        public abstract Guid EventSourceGuid { get; }
+        protected abstract Guid EventSourceGuid { get; }
 
-        public abstract EventKeywords Keywords { get; }
+        protected abstract EventKeywords Keywords { get; }
 
-        public abstract EventLevel Level { get; }
+        protected abstract EventLevel Level { get; }
 
-        public abstract void ProcessEvent(EventWrittenEventArgs e);
+        protected abstract void ProcessEvent(EventWrittenEventArgs e);
 
-        protected override void OnEventWritten(EventWrittenEventArgs eventData)
+        protected sealed override void OnEventWritten(EventWrittenEventArgs eventData)
         {
             try
             {
