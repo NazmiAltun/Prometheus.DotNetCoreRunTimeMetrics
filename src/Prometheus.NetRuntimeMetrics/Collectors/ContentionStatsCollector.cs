@@ -2,17 +2,15 @@
 using System.Diagnostics.Tracing;
 using Prometheus.Client.Abstractions;
 using Prometheus.NetRuntimeMetrics.Abstraction;
-using Prometheus.NetRuntimeMetrics.Utils;
 
 namespace Prometheus.NetRuntimeMetrics.Collectors
 {
     internal class ContentionStatsCollector : RuntimeStatsCollectorBase
     {
+        private const string DurationNanoSecondsFieldName = "DurationNs";
         private const int DefaultSamplingRate = 1;
         private const int EventIdContentionStart = 81;
         private const int EventIdContentionStop = 91;
-
-        private readonly Sampler _sampler;
 
         public ContentionStatsCollector(IMetricFactory metricFactory)
             : this(metricFactory, _ => { })
@@ -31,8 +29,6 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
             Action<Exception> errorHandler,
             int sampleEvery) : base(errorHandler)
         {
-            _sampler = new Sampler(sampleEvery);
-
             ContentionSecondsTotal = metricFactory
                 .CreateGauge(
                     "dotnet_contention_seconds_total",
@@ -50,10 +46,10 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
 
         protected override void ProcessEvent(EventWrittenEventArgs e)
         {
-            if (e.EventId == EventIdContentionStop && _sampler.ShouldSample())
+            if (e.EventId == EventIdContentionStop)
             {
                 ContentionTotal.Inc();
-                ContentionSecondsTotal.Set((double) e.Payload[2] / 1000000000 * _sampler.SampleEvery);
+                ContentionSecondsTotal.Set(e.GetVal<double>(DurationNanoSecondsFieldName) / 1000000000);
             }
         }
     }

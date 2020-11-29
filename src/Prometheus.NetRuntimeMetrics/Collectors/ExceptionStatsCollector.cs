@@ -8,6 +8,7 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
     internal class ExceptionStatsCollector : RuntimeStatsCollectorBase
     {
         private const int EventIdExceptionThrown = 80;
+        private const string ExceptionTypeFieldName = "ExceptionType";
 
         public ExceptionStatsCollector(
             IMetricFactory metricFactory)
@@ -34,7 +35,7 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
         {
             if (e.EventId == EventIdExceptionThrown)
             {
-                ExceptionCount.WithLabels((string)e.Payload[0]).Inc();
+                ExceptionCount.WithLabels(e.GetVal<string>(ExceptionTypeFieldName)).Inc();
             }
         }
     }

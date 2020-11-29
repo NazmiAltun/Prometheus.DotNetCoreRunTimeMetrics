@@ -5,6 +5,10 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
 {
     internal readonly struct GcStartInfo
     {
+        private const string GenerationFieldName = "Depth";
+        private const string ReasonFieldName = "Reason";
+        private const string TypeFieldName = "Type";
+
         private static readonly Dictionary<uint, string> GcReasonMapping = new Dictionary<uint, string>
         {
             {0x0, "Small object heap allocation" },
@@ -27,9 +31,9 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
         public static GcStartInfo FromEventWrittenEventArgs(EventWrittenEventArgs e)
         {
             return new GcStartInfo(
-                (uint)e.Payload[1],
-                (uint)e.Payload[2],
-                (uint)e.Payload[3]);
+                e.GetVal<uint>(GenerationFieldName),
+                e.GetVal<uint>(ReasonFieldName),
+                e.GetVal<uint>(TypeFieldName));
         }
 
         private readonly uint _type;

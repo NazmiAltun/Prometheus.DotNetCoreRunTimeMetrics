@@ -14,7 +14,6 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
         private const int EventIdThreadPoolDequeueWork = 31;
 
         private readonly EventTimer _eventTimer;
-        private readonly Sampler _sampler; //TODO: May move this to base class
 
         public ThreadPoolSchedulingStatsCollector(
             IMetricFactory metricFactory,
@@ -30,7 +29,6 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
             double[] histogramBuckets,
             int sampleEvery) : base(errorHandler)
         {
-            _sampler = new Sampler(sampleEvery);
             _eventTimer = new EventTimer(
                 memoryCache,
                 EventIdThreadPoolEnqueueWork,

@@ -15,6 +15,13 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
         private const int GCEnd_V1 = 2;
         private const int GCHeapStats_V2 = 4;
         private const int GCAllocationTick_V3 = 10;
+        private const string AllocationKindFieldName = "AllocationKind";
+        private const string TypeNameFieldName = "TypeName";
+        private const string Generation0SizeFieldName = "GenerationSize0";
+        private const string Generation1SizeFieldName = "GenerationSize1";
+        private const string Generation2SizeFieldName = "GenerationSize2";
+        private const string GenerationLohSizeFieldName = "GenerationSize3";
+        private const string CountFieldName = "Count";
 
         private readonly TimeSpan DefaultCacheDuration = TimeSpan.FromSeconds(60);
 
@@ -86,12 +93,12 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
             const uint lohKindFlag = 0x1;
 
             if (e.EventId != GCAllocationTick_V3 ||
-                ((uint)e.Payload[1] & lohKindFlag) != lohKindFlag)
+                (e.GetVal<uint>(AllocationKindFieldName) & lohKindFlag) != lohKindFlag)
             {
                 return;
             }
 
-            LargeObjectAllocationTypeTrigger.WithLabels((string)e.Payload[5]).Inc();
+            LargeObjectAllocationTypeTrigger.WithLabels(e.GetVal<string>(TypeNameFieldName)).Inc();
         }
 
         private void HandleHeapStatsEvents(EventWrittenEventArgs e)
@@ -100,10 +107,11 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
             {
                 return;
             }
-            GcHeapSizeInBytes.WithLabels("0").Set((ulong)e.Payload[0]);
-            GcHeapSizeInBytes.WithLabels("1").Set((ulong)e.Payload[2]);
-            GcHeapSizeInBytes.WithLabels("2").Set((ulong)e.Payload[4]);
-            GcHeapSizeInBytes.WithLabels("loh").Set((ulong)e.Payload[6]);
+
+            GcHeapSizeInBytes.WithLabels("0").Set(e.GetVal<ulong>(Generation0SizeFieldName));
+            GcHeapSizeInBytes.WithLabels("1").Set(e.GetVal<ulong>(Generation1SizeFieldName));
+            GcHeapSizeInBytes.WithLabels("2").Set(e.GetVal<ulong>(Generation2SizeFieldName));
+            GcHeapSizeInBytes.WithLabels("loh").Set(e.GetVal<ulong>(GenerationLohSizeFieldName));
         }
 
         private void HandleStartEndEvents(EventWrittenEventArgs e)
@@ -129,6 +137,6 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
             }
         }
 
-        private string GetCacheKey(EventWrittenEventArgs e) => $"GcInfo_{e.Payload[0]}";
+        private string GetCacheKey(EventWrittenEventArgs e) => $"GcInfo_{e.GetVal<uint>(CountFieldName)}";
     }
 }

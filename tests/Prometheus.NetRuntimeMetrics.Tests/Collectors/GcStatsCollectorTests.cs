@@ -20,10 +20,10 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
             var _ = PolluteMemory();
             ForceGc();
             //Assert
-            VerifyGc(collector, "2", "Large object heap allocation", "NonBlocking Background");
             VerifyGc(collector, "0", "Induced", "Blocking Foreground");
             VerifyGc(collector, "1", "Induced", "Blocking Foreground");
             VerifyGc(collector, "2", "Induced", "Blocking Foreground");
+            VerifyGc(collector, "2", "Large object heap allocation", "NonBlocking Background");
             VerifyHeapSize(collector, "0");
             VerifyHeapSize(collector, "1");
             VerifyHeapSize(collector, "2");
