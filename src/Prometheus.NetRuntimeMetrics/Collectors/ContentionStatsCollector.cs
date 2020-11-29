@@ -9,7 +9,6 @@ namespace Prometheus.NetRuntimeMetrics.Collectors
     {
         private const string DurationNanoSecondsFieldName = "DurationNs";
         private const int DefaultSamplingRate = 1;
-        private const int EventIdContentionStart = 81;
         private const int EventIdContentionStop = 91;
 
         public ContentionStatsCollector(IMetricFactory metricFactory)

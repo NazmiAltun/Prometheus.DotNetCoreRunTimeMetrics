@@ -14,7 +14,7 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
         [Fact]
         public void GcStatsShouldBeCollected()
         {
-            var collector = CreateStatsCollector();
+            using var collector = CreateStatsCollector();
 
             //Act
             var _ = PolluteMemory();
