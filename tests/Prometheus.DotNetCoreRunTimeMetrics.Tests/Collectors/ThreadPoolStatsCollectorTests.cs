@@ -20,8 +20,8 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
             using var collector = CreateStatsCollector();
             await SpamCpuAndIoBoundTasksToThreadPool();
             await AssertWorkerThreadsAreCreated(collector);
+            await AssertIoThreadsAreCreated(collector);
             collector.ThreadPoolWorkerThreadAdjustmentThroughput.Value.Should().BeGreaterThan(0);
-            collector.IoThreadCount.Value.Should().BeGreaterThan(0);
             collector.WorkerThreadPoolAdjustmentReasonCount.WithLabels("Warmup")
                 .Value.Should().BeGreaterThan(0);
             collector.WorkerThreadPoolAdjustmentReasonCount.WithLabels("Climbing move")
