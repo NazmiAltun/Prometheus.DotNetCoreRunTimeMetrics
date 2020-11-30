@@ -43,7 +43,7 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
         private async Task SpamCpuAndIoBoundTasksToThreadPool()
         {
             const int workerTaskCount = 1000;
-            const int ioTaskCount = 50;
+            const int ioTaskCount = 500;
 
             for (var i = 0; i < workerTaskCount; i++)
             {
@@ -58,7 +58,16 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
                 Timeout = TimeSpan.FromSeconds(1)
             };
             var httpTasks = Enumerable.Range(1, ioTaskCount)
-                .Select(_ => client.GetAsync("http://google.com"));
+                .Select(async (_) =>
+                {
+                    try
+                    {
+                        await client.GetAsync("http://google.com");
+                    }
+                    catch
+                    {
+                    }
+                });
 
             await Task.WhenAll(httpTasks);
         }
