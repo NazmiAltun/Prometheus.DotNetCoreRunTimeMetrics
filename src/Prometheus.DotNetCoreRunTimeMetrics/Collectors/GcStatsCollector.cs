@@ -11,7 +11,6 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Collectors
     //Ref: https://docs.microsoft.com/en-us/dotnet/framework/performance/garbage-collection-etw-events#gcstart_v1-event
     internal class GcStatsCollector : RuntimeStatsCollectorBase
     {
-        private const int DefaultSamplingRate = 1;
         private const int GCStart_V1 = 1;
         private const int GCEnd_V1 = 2;
         private const int GCHeapStats_V2 = 4;
