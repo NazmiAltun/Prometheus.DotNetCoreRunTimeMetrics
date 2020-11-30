@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,10 +28,16 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
                 .Value.Should().BeGreaterThan(0);
         }
 
+        private async Task AssertIoThreadsAreCreated(ThreadPoolStatsCollector collector)
+        {
+            await DelayHelper.DelayAsync(() => collector.IoThreadCount.Value <= 0);
+            collector.IoThreadCount.Value.Should().BeGreaterThan(0);
+        }
+
         private async Task AssertWorkerThreadsAreCreated(ThreadPoolStatsCollector collector)
         {
-            collector.WorkerActiveThreadCount.Value.Should().BeGreaterThan(0);
             await DelayHelper.DelayAsync(() => collector.WorkerActiveThreadCount.Value <= 0);
+            collector.WorkerActiveThreadCount.Value.Should().BeGreaterThan(0);
         }
 
         private async Task SpamCpuAndIoBoundTasksToThreadPool()
@@ -46,7 +53,10 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
                 });
             }
 
-            using var client = new HttpClient();
+            using var client = new HttpClient()
+            {
+                Timeout = TimeSpan.FromSeconds(1)
+            };
             var httpTasks = Enumerable.Range(1, ioTaskCount)
                 .Select(_ => client.GetAsync("http://google.com"));
 
