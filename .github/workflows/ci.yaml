@@ -15,6 +15,9 @@ jobs:
           git fetch --prune --unshallow
       - name: Disable DotNet First Usage Messsage
         run: touch "$HOME/.dotnet/$(dotnet --version).dotnetFirstUseSentinel"
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '11'
       - name: Install sonar-scanner
         run: dotnet tool install --global dotnet-sonarscanner
       - name: Begin sonar scanning
