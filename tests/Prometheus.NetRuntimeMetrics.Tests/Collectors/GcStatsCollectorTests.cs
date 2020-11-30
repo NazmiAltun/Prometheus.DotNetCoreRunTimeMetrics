@@ -5,6 +5,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Prometheus.Client;
 using Prometheus.Client.Collectors;
 using Prometheus.NetRuntimeMetrics.Collectors;
+using Prometheus.NetRuntimeMetrics.Tests.TestHelpers;
 using Xunit;
 
 namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
@@ -45,12 +46,12 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
 
         private void VerifyGc(GcStatsCollector collector, string gen, string reason, string type)
         {
+            DelayHelper.Delay(() => collector.GcReasons.WithLabels(gen, reason, type).Value <= 0);
+            DelayHelper.Delay(() => collector.GcDuration.WithLabels(gen, reason, type).Value.Sum <= 0);
             collector.GcReasons.WithLabels(gen, reason, type).Value
                 .Should().BeGreaterThan(0);
             collector.GcDuration.WithLabels(gen, reason, type).Value
                 .Sum.Should().BeGreaterThan(0);
-            collector.GcDuration.WithLabels(gen, reason, type).Value
-                .Count.Should().BeGreaterThan(0);
         }
 
 

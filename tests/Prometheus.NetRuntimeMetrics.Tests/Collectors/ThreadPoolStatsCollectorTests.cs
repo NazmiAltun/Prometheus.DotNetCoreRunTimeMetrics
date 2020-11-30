@@ -1,13 +1,12 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Net.Http;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Prometheus.Client;
 using Prometheus.Client.Collectors;
 using Prometheus.NetRuntimeMetrics.Collectors;
+using Prometheus.NetRuntimeMetrics.Tests.TestHelpers;
 using Xunit;
 
 namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
@@ -19,13 +18,19 @@ namespace Prometheus.NetRuntimeMetrics.Tests.Collectors
         {
             using var collector = CreateStatsCollector();
             await SpamCpuAndIoBoundTasksToThreadPool();
+            await AssertWorkerThreadsAreCreated(collector);
             collector.ThreadPoolWorkerThreadAdjustmentThroughput.Value.Should().BeGreaterThan(0);
-            collector.WorkerActiveThreadCount.Value.Should().BeGreaterThan(0);
             collector.IoThreadCount.Value.Should().BeGreaterThan(0);
             collector.WorkerThreadPoolAdjustmentReasonCount.WithLabels("Warmup")
                 .Value.Should().BeGreaterThan(0);
             collector.WorkerThreadPoolAdjustmentReasonCount.WithLabels("Climbing move")
                 .Value.Should().BeGreaterThan(0);
+        }
+
+        private async Task AssertWorkerThreadsAreCreated(ThreadPoolStatsCollector collector)
+        {
+            collector.WorkerActiveThreadCount.Value.Should().BeGreaterThan(0);
+            await DelayHelper.DelayAsync(() => collector.WorkerActiveThreadCount.Value <= 0);
         }
 
         private async Task SpamCpuAndIoBoundTasksToThreadPool()
