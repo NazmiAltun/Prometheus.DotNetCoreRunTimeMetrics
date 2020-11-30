@@ -12,7 +12,7 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
     public class ExceptionStatsCollectorTests
     {
         [Fact]
-        public async Task When_Exception_Occurs_Collector_Should_Count_It()
+        public void When_Exception_Occurs_Collector_Should_Count_It()
         {
             using var collector = CreateStatsCollector();
 

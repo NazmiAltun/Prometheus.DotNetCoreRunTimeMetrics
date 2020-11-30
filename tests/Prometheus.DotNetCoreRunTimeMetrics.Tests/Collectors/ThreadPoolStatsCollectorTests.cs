@@ -9,11 +9,19 @@ using Prometheus.Client.Collectors;
 using Prometheus.DotNetCoreRunTimeMetrics.Collectors;
 using Prometheus.DotNetCoreRunTimeMetrics.Tests.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
 {
     public class ThreadPoolStatsCollectorTests
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public ThreadPoolStatsCollectorTests(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
         [Fact]
         public async Task ThreadPoolStatsShouldBeCollected()
         {
@@ -43,7 +51,7 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
         private async Task SpamCpuAndIoBoundTasksToThreadPool()
         {
             const int workerTaskCount = 1000;
-            const int ioTaskCount = 500;
+            const int ioTaskCount = 1000;
 
             for (var i = 0; i < workerTaskCount; i++)
             {
@@ -62,10 +70,11 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
                 {
                     try
                     {
-                        await client.GetAsync("http://google.com");
+                        await client.GetAsync("http://localhost:9657/ping");
                     }
-                    catch
+                    catch(Exception ex)
                     {
+                        _testOutputHelper.WriteLine(ex.ToString());
                     }
                 });
 
