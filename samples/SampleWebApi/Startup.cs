@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Prometheus.Client.AspNetCore;
@@ -30,7 +29,11 @@ namespace SampleWebApi
             }
 
             app.UseRouting();
-            app.UsePrometheusServer();
+            app.UsePrometheusServer((options =>
+            {
+                options.UseDefaultCollectors = true;
+            }));
+            app.StartCollectingRuntimeStats();
 
             app.UseEndpoints(endpoints =>
             {
