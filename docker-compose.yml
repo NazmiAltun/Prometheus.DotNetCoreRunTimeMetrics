@@ -1,9 +1,0 @@
-version: '3.4'
-
-services:
-  mockserver:
-    image: nazmialtun/mockizen:latest
-    volumes:
-      - ./mockserver:/opt/app/mocks
-    ports:
-      - 9657:8080

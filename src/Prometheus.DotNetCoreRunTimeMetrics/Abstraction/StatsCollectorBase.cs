@@ -5,9 +5,9 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Abstraction
 {
     internal abstract class StatsCollectorBase : EventListener
     {
-        private readonly Action<Exception> _errorHandler;
+        private readonly ICollectorExceptionHandler _errorHandler;
 
-        protected StatsCollectorBase(Action<Exception> errorHandler)
+        protected StatsCollectorBase(ICollectorExceptionHandler errorHandler)
         {
             _errorHandler = errorHandler;
             EventSourceCreated += OnEventSourceCreated;
@@ -29,7 +29,7 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Abstraction
             }
             catch (Exception e)
             {
-                _errorHandler(e);
+                _errorHandler.Handle(e);
             }
         }
 

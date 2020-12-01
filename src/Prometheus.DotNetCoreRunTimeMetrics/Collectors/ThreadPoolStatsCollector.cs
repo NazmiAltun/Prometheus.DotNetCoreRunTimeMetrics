@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using Prometheus.Client.Abstractions;
 using Prometheus.DotNetCoreRunTimeMetrics.Abstraction;
@@ -43,7 +42,7 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Collectors
 
         public ThreadPoolStatsCollector(
             IMetricFactory metricFactory,
-            Action<Exception> errorHandler) : base(errorHandler)
+            ICollectorExceptionHandler errorHandler) : base(errorHandler)
         {
             WorkerActiveThreadCount = metricFactory.CreateGauge(
                 "dotnet_thread_pool_active_worker_thread_total",

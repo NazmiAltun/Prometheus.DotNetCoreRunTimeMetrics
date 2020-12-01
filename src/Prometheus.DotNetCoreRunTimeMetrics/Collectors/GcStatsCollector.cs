@@ -31,15 +31,8 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Collectors
         public GcStatsCollector(
             IMetricFactory metricFactory,
             IMemoryCache memoryCache,
-            Action<Exception> errorHandler) : this(metricFactory, memoryCache, errorHandler, Constants.DefaultHistogramBuckets)
-        {
-        }
-
-        public GcStatsCollector(
-            IMetricFactory metricFactory,
-            IMemoryCache memoryCache,
-            Action<Exception> errorHandler,
-            double[] histograms) : base(errorHandler)
+            ICollectorExceptionHandler errorHandler,
+            RuntimeStatCollectorsConfiguration configuration) : base(errorHandler)
         {
             _memoryCache = memoryCache;
             _eventTimer = new EventTimer(
@@ -58,7 +51,7 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Collectors
                 "dotnet_gc_duration",
                 "The amount of time spent running garbage collections",
                 false,
-                histograms,
+                configuration.HistogramBuckets,
                 "gc_gen",
                 "gc_reason",
                 "gc_type");

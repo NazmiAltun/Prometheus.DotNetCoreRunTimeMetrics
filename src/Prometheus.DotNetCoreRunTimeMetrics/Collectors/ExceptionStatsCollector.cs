@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics.Tracing;
+﻿using System.Diagnostics.Tracing;
 using Prometheus.Client.Abstractions;
 using Prometheus.DotNetCoreRunTimeMetrics.Abstraction;
 using Prometheus.DotNetCoreRunTimeMetrics.Extensions;
@@ -12,14 +11,8 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Collectors
         private const string ExceptionTypeFieldName = "ExceptionType";
 
         public ExceptionStatsCollector(
-            IMetricFactory metricFactory)
-            : this(metricFactory, _ => { })
-        {
-        }
-
-        public ExceptionStatsCollector(
             IMetricFactory metricFactory,
-            Action<Exception> errorHandler) : base(errorHandler)
+            ICollectorExceptionHandler errorHandler) : base(errorHandler)
         {
             ExceptionCount = metricFactory.CreateCounter(
                 "dotnet_exceptions_total",

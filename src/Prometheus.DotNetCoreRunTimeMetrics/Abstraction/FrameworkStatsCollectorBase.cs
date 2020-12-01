@@ -4,7 +4,7 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Abstraction
 {
     internal abstract class FrameworkStatsCollectorBase : StatsCollectorBase
     {
-        protected FrameworkStatsCollectorBase(Action<Exception> errorHandler)
+        protected FrameworkStatsCollectorBase(ICollectorExceptionHandler errorHandler)
             : base(errorHandler)
         {
         }

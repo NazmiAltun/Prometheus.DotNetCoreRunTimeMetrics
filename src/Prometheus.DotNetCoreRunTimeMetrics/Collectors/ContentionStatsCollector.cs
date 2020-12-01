@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics.Tracing;
+﻿using System.Diagnostics.Tracing;
 using Prometheus.Client.Abstractions;
 using Prometheus.DotNetCoreRunTimeMetrics.Abstraction;
 using Prometheus.DotNetCoreRunTimeMetrics.Extensions;
@@ -9,25 +8,11 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Collectors
     internal class ContentionStatsCollector : RuntimeStatsCollectorBase
     {
         private const string DurationNanoSecondsFieldName = "DurationNs";
-        private const int DefaultSamplingRate = 1;
         private const int EventIdContentionStop = 91;
-
-        public ContentionStatsCollector(IMetricFactory metricFactory)
-            : this(metricFactory, _ => { })
-        {
-        }
-
+        
         public ContentionStatsCollector(
             IMetricFactory metricFactory,
-            Action<Exception> errorHandler)
-            : this(metricFactory, errorHandler, DefaultSamplingRate)
-        {
-        }
-
-        public ContentionStatsCollector(
-            IMetricFactory metricFactory,
-            Action<Exception> errorHandler,
-            int sampleEvery) : base(errorHandler)
+            ICollectorExceptionHandler errorHandler) : base(errorHandler)
         {
             ContentionSecondsTotal = metricFactory
                 .CreateGauge(
