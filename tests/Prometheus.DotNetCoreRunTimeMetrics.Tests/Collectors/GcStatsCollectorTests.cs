@@ -7,11 +7,19 @@ using Prometheus.Client.Collectors;
 using Prometheus.DotNetCoreRunTimeMetrics.Collectors;
 using Prometheus.DotNetCoreRunTimeMetrics.Tests.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
 {
     public class GcStatsCollectorTests
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public GcStatsCollectorTests(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
         [Fact]
         public void GcStatsShouldBeCollected()
         {
@@ -81,7 +89,8 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
             return new GcStatsCollector(
                 new MetricFactory(new CollectorRegistry()),
                 new MemoryCache(new MemoryCacheOptions()),
-                e => throw e);
+                TestCollectorExceptionHandler.Create(_testOutputHelper),
+                RuntimeStatCollectorsConfiguration.Default);
         }
     }
 }

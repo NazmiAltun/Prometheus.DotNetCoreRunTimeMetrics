@@ -5,11 +5,19 @@ using Prometheus.Client.Collectors;
 using Prometheus.DotNetCoreRunTimeMetrics.Collectors;
 using Prometheus.DotNetCoreRunTimeMetrics.Tests.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
 {
     public class ExceptionStatsCollectorTests
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public ExceptionStatsCollectorTests(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
         [Fact]
         public void When_Exception_Occurs_Collector_Should_Count_It()
         {
@@ -39,7 +47,9 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
 
         private ExceptionStatsCollector CreateStatsCollector()
         {
-            return new ExceptionStatsCollector(new MetricFactory(new CollectorRegistry()));
+            return new ExceptionStatsCollector(
+                new MetricFactory(new CollectorRegistry()),
+                TestCollectorExceptionHandler.Create(_testOutputHelper));
         }
     }
 }

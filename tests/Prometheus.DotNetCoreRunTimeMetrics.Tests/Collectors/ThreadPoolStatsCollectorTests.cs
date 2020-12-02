@@ -85,7 +85,7 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
         {
             return new ThreadPoolStatsCollector(
                 new MetricFactory(new CollectorRegistry()),
-                e => throw e);
+                TestCollectorExceptionHandler.Create(_testOutputHelper));
         }
     }
 }

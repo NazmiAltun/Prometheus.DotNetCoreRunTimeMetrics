@@ -6,11 +6,19 @@ using Prometheus.Client.Collectors;
 using Prometheus.DotNetCoreRunTimeMetrics.Collectors;
 using Prometheus.DotNetCoreRunTimeMetrics.Tests.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
 {
     public class ThreadPoolSchedulingStatsCollectorTests
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public ThreadPoolSchedulingStatsCollectorTests(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
         [Fact]
         public async Task When_TasksScheduledOnThreadPool_Then_ThreadPoolStatsShouldBeCollected()
         {
@@ -37,7 +45,7 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
             return new ThreadPoolSchedulingStatsCollector(
                 new MetricFactory(new CollectorRegistry()),
                 new MemoryCache(new MemoryCacheOptions()),
-                _ => { });
+                TestCollectorExceptionHandler.Create(_testOutputHelper));
         }
     }
 }

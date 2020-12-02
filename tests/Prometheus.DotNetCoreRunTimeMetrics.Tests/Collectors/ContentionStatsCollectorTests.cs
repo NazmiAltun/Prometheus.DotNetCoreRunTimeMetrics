@@ -6,11 +6,19 @@ using Prometheus.Client;
 using Prometheus.Client.Collectors;
 using Prometheus.DotNetCoreRunTimeMetrics.Collectors;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
 {
     public class ContentionStatsCollectorTests
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public ContentionStatsCollectorTests(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
         [Fact]
         public async Task When_NothingIsLocked_Then_NoContention_Should_BeRecorded()
         {
@@ -69,7 +77,9 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
 
         private ContentionStatsCollector CreateStatsCollector()
         {
-            return new ContentionStatsCollector(new MetricFactory(new CollectorRegistry()));
+            return new ContentionStatsCollector(
+                new MetricFactory(new CollectorRegistry()),
+                TestCollectorExceptionHandler.Create(_testOutputHelper));
         }
     }
 }
