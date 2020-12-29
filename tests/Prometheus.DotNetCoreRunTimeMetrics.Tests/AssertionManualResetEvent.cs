@@ -25,6 +25,10 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests
             }, _cancellationTokenSource.Token);
         }
 
+        public void Wait()
+        {
+            Wait(TimeSpan.FromSeconds(10));
+        }
         public void Wait(TimeSpan timeout)
         {
             _cancellationTokenSource.CancelAfter(timeout);

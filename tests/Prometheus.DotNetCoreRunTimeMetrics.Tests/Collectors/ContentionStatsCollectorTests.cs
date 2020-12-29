@@ -71,6 +71,9 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
                 thread.Join();
             }
 
+            var manualResetEvent =
+                new AssertionManualResetEvent(() => collector.ContentionTotal.Value >= threadCount - 1);
+            manualResetEvent.Wait();
             collector.ContentionTotal.Value.Should().Be(threadCount - 1);
             collector.ContentionSecondsTotal.Value.Should().BeGreaterOrEqualTo(expectedContentionSec - 0.25);
         }
