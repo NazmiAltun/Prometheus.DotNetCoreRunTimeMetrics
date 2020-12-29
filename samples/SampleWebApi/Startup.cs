@@ -31,7 +31,7 @@ namespace SampleWebApi
             app.UseRouting();
             app.UsePrometheusServer((options =>
             {
-                options.UseDefaultCollectors = true;
+                options.UseDefaultCollectors = false;
             }));
             app.StartCollectingRuntimeStats();
 

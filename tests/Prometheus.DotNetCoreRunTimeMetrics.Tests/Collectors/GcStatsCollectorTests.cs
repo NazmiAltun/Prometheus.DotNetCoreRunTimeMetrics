@@ -5,7 +5,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Prometheus.Client;
 using Prometheus.Client.Collectors;
 using Prometheus.DotNetCoreRunTimeMetrics.Collectors;
-using Prometheus.DotNetCoreRunTimeMetrics.Tests.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -52,8 +51,14 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
 
         private void VerifyGc(GcStatsCollector collector, string gen, string reason, string type)
         {
-            DelayHelper.Delay(() => collector.GcReasons.WithLabels(gen, reason, type).Value <= 0);
-            DelayHelper.Delay(() => collector.GcDuration.WithLabels(gen, reason, type).Value.Sum <= 0);
+            using var gcReasonManualResetEvent = new AssertionManualResetEvent(() =>
+                collector.GcReasons.WithLabels(gen, reason, type).Value > 0);
+            gcReasonManualResetEvent.Wait(TimeSpan.FromSeconds(10));
+
+            using var gcDurationManualResetEvent = new AssertionManualResetEvent(() =>
+                collector.GcDuration.WithLabels(gen, reason, type).Value.Sum > 0);
+            gcReasonManualResetEvent.Wait(TimeSpan.FromSeconds(10));
+
             collector.GcReasons.WithLabels(gen, reason, type).Value
                 .Should().BeGreaterThan(0);
             collector.GcDuration.WithLabels(gen, reason, type).Value

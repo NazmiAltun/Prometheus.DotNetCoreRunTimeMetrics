@@ -3,7 +3,6 @@ using FluentAssertions;
 using Prometheus.Client;
 using Prometheus.Client.Collectors;
 using Prometheus.DotNetCoreRunTimeMetrics.Collectors;
-using Prometheus.DotNetCoreRunTimeMetrics.Tests.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -38,8 +37,9 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
         private void ExceptionShouldBeCollected<TException>(ExceptionStatsCollector collector)
             where TException : Exception
         {
-            DelayHelper.Delay(() => collector.ExceptionCount
-                .WithLabels(typeof(TException).FullName).Value < 1);
+            using var assertionManualResetEvent = new AssertionManualResetEvent(() => 
+                collector.ExceptionCount.WithLabels(typeof(TException).FullName).Value >= 1);
+            assertionManualResetEvent.Wait(TimeSpan.FromSeconds(10));
             collector.ExceptionCount
                 .WithLabels(typeof(TException).FullName).Value
                 .Should().Be(1);

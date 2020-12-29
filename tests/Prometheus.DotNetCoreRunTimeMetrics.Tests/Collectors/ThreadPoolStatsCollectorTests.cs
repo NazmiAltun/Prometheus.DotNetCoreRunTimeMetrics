@@ -7,7 +7,6 @@ using FluentAssertions;
 using Prometheus.Client;
 using Prometheus.Client.Collectors;
 using Prometheus.DotNetCoreRunTimeMetrics.Collectors;
-using Prometheus.DotNetCoreRunTimeMetrics.Tests.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -27,8 +26,8 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
         {
             using var collector = CreateStatsCollector();
             await SpamCpuAndIoBoundTasksToThreadPool();
-            await AssertWorkerThreadsAreCreated(collector);
-           // await AssertIoThreadsAreCreated(collector);
+            AssertWorkerThreadsAreCreated(collector);
+            AssertIoThreadsAreCreated(collector);
             collector.ThreadPoolWorkerThreadAdjustmentThroughput.Value.Should().BeGreaterThan(0);
             collector.WorkerThreadPoolAdjustmentReasonCount.WithLabels("Warmup")
                 .Value.Should().BeGreaterThan(0);
@@ -36,15 +35,19 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
                 .Value.Should().BeGreaterThan(0);
         }
 
-        private async Task AssertIoThreadsAreCreated(ThreadPoolStatsCollector collector)
+        private void AssertIoThreadsAreCreated(ThreadPoolStatsCollector collector)
         {
-            await DelayHelper.DelayAsync(() => collector.IoThreadCount.Value <= 0);
+            using var assertionManualResetEvent = new AssertionManualResetEvent(() =>
+                collector.IoThreadCount.Value > 0);
+            assertionManualResetEvent.Wait(TimeSpan.FromSeconds(20));
             collector.IoThreadCount.Value.Should().BeGreaterThan(0);
         }
 
-        private async Task AssertWorkerThreadsAreCreated(ThreadPoolStatsCollector collector)
+        private void AssertWorkerThreadsAreCreated(ThreadPoolStatsCollector collector)
         {
-            await DelayHelper.DelayAsync(() => collector.WorkerActiveThreadCount.Value <= 0);
+            using var assertionManualResetEvent = new AssertionManualResetEvent(() =>
+                collector.WorkerActiveThreadCount.Value > 0);
+            assertionManualResetEvent.Wait(TimeSpan.FromSeconds(20));
             collector.WorkerActiveThreadCount.Value.Should().BeGreaterThan(0);
         }
 
