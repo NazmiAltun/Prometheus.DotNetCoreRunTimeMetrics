@@ -39,7 +39,7 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
         {
             using var assertionManualResetEvent = new AssertionManualResetEvent(() => 
                 collector.ExceptionCount.WithLabels(typeof(TException).FullName).Value >= 1);
-            assertionManualResetEvent.Wait(TimeSpan.FromSeconds(10));
+            assertionManualResetEvent.Wait();
             collector.ExceptionCount
                 .WithLabels(typeof(TException).FullName).Value
                 .Should().Be(1);

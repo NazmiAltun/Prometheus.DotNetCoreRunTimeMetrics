@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.Tracing;
+﻿using System.Diagnostics;
+using System.Diagnostics.Tracing;
 using Prometheus.Client.Abstractions;
 using Prometheus.DotNetCoreRunTimeMetrics.Abstraction;
 using Prometheus.DotNetCoreRunTimeMetrics.Extensions;
@@ -30,6 +31,10 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Collectors
             if (e.EventId == EventIdExceptionThrown)
             {
                 ExceptionCount.WithLabels(e.GetVal<string>(ExceptionTypeFieldName)).Inc();
+            }
+            else
+            {
+                Debug.WriteLine($"EventId ={e.EventId}");
             }
         }
     }
