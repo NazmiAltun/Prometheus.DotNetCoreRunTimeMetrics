@@ -25,7 +25,16 @@ namespace SampleWebApi.Controllers
             var randomExceptionType = _exceptionTypes[_random.Value.Next(_exceptionTypes.Length)];
             var exception = Activator.CreateInstance(randomExceptionType) as Exception;
 
-            throw exception;
+            try
+            {
+                throw exception;
+            }
+            catch
+            {
+
+            }
+
+            return Ok();
         }
     }
 }
