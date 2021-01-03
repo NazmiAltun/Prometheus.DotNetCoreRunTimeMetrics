@@ -25,6 +25,7 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Collectors
         public IMetricFamily<ICounter> ExceptionCount { get; }
         protected override EventKeywords Keywords => (EventKeywords)0x00008000;
         protected override EventLevel Level => EventLevel.Informational;
+        protected override bool IsInitialized => ExceptionCount != null;
 
         protected override void ProcessEvent(EventWrittenEventArgs e)
         {

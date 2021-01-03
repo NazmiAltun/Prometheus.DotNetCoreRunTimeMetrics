@@ -44,6 +44,9 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Collectors
         protected override EventKeywords Keywords => (EventKeywords)0x0002;
         protected override EventLevel Level => EventLevel.Verbose;
 
+        protected override bool IsInitialized => ScheduledCount != null &&
+                                                 ScheduleDelay != null;
+
         protected override void ProcessEvent(EventWrittenEventArgs e)
         {
             var eventTime = _eventTimer.GetEventTime(e);

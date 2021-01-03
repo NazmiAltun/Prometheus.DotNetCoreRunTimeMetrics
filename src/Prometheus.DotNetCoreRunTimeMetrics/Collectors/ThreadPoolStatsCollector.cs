@@ -75,6 +75,12 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Collectors
 
         protected override EventKeywords Keywords => (EventKeywords)0x10000;
         protected override EventLevel Level => EventLevel.Informational;
+        protected override bool IsInitialized => WorkerActiveThreadCount != null &&
+                                                 WorkerRetiredThreadCount != null &&
+                                                 ThreadPoolWorkerThreadAdjustmentThroughput != null &&
+                                                 WorkerThreadPoolAdjustmentReasonCount != null &&
+                                                 IoThreadCount != null &&
+                                                 IoRetiredCount != null;
 
         protected override void ProcessEvent(EventWrittenEventArgs e)
         {

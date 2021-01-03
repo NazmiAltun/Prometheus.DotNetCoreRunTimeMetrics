@@ -19,13 +19,18 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Abstraction
 
         protected abstract EventLevel Level { get; }
 
+        protected abstract bool IsInitialized { get; }
+
         protected abstract void ProcessEvent(EventWrittenEventArgs e);
 
         protected sealed override void OnEventWritten(EventWrittenEventArgs eventData)
         {
             try
             {
-                ProcessEvent(eventData);
+                if (IsInitialized)
+                {
+                    ProcessEvent(eventData);
+                }
             }
             catch (Exception e)
             {

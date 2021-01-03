@@ -29,6 +29,9 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Collectors
         protected override EventKeywords Keywords => (EventKeywords)0x4000;
         protected override EventLevel Level => EventLevel.Informational;
 
+        protected override bool IsInitialized => ContentionSecondsTotal != null &&
+                                                 ContentionTotal != null;
+
         protected override void ProcessEvent(EventWrittenEventArgs e)
         {
             if (e.EventId == EventIdContentionStop)

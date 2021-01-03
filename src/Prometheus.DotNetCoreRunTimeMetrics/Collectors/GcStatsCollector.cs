@@ -74,6 +74,12 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Collectors
 
         protected override EventKeywords Keywords => (EventKeywords)0x00000001;
         protected override EventLevel Level => EventLevel.Verbose;
+
+        protected override bool IsInitialized => GcReasons != null &&
+                                                 GcDuration != null &&
+                                                 GcHeapSizeInBytes != null &&
+                                                 LargeObjectAllocationTypeTrigger != null;
+
         protected override void ProcessEvent(EventWrittenEventArgs e)
         {
             HandleStartEndEvents(e);
