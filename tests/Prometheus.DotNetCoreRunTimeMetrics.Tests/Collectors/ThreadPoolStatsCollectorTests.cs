@@ -24,18 +24,9 @@ namespace Prometheus.DotNetCoreRunTimeMetrics.Tests.Collectors
         {
             using var collector = CreateStatsCollector();
             SpamTasksOnThreadPool();
-            AssertWorkerThreadPoolAdjustmentReasonCount(collector);
             AssertWorkerThreadCountIncreased(collector);
         }
-
-        private void AssertWorkerThreadPoolAdjustmentReasonCount(ThreadPoolStatsCollector collector)
-        {
-            using var resetEvent = new AssertionManualResetEvent(() =>
-                collector.WorkerThreadPoolAdjustmentReasonCount.Labelled.Any());
-            resetEvent.Wait();
-            collector.WorkerThreadPoolAdjustmentReasonCount.Labelled.First().Value.Value.Should().BeGreaterThan(0);
-        }
-
+        
         private void AssertWorkerThreadCountIncreased(ThreadPoolStatsCollector collector)
         {
             using var resetEvent = new AssertionManualResetEvent(() =>
